@@ -85,3 +85,13 @@ forward 实现，不依赖 ncnn/Vulkan 类型；ncnn `Layer` 继承它。
 网络输入/输出 blob 集合。
 
 **验收**：`Graph.BuildsExecutionPlan`。
+
+## REQ-014 · 通用执行循环
+
+**契约**：`mgraph::Executor<LayerT, MatT, OptionT>` 负责递归拉取未生产的
+bottom blob、按 featmask 选择 option、调用 backend；concrete layer 调用由
+`ExecutionBackend` 提供。
+
+**验收**：`Executor.RunsLayersInDependencyOrder`、
+`Executor.RejectsInvalidLayerAndMissingProducer`、
+`Executor.BackendMasksOptionWithoutFeatmask`。

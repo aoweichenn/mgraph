@@ -8,6 +8,7 @@
 #include <cstdint>
 
 #include <string>
+#include <utility>
 #include <vector>
 
 #include <mformat/data_reader.hpp>
@@ -18,6 +19,9 @@ namespace mgraph {
 
 struct Blob {
     Blob() : producer(-1), consumer(-1) {}
+
+    Blob(std::string blob_name, std::int32_t blob_producer, std::int32_t blob_consumer)
+            : name(std::move(blob_name)), producer(blob_producer), consumer(blob_consumer) {}
 
     std::string name;
     std::int32_t producer;

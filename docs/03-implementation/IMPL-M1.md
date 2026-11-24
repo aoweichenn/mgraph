@@ -4,6 +4,7 @@
 include/mgraph/graph.hpp          Blob / LayerSpec / Graph / ExecutionPlan
 include/mgraph/layer.hpp          Layer<MatT, OptionT>
 include/mgraph/layer_factory.hpp  LayerFactory<LayerT>
+include/mgraph/executor.hpp       Executor / ExecutionBackend
 include/mgraph/log.hpp            可注入日志
 src/graph.cpp                文本/二进制拓扑解析
 src/log.cpp
@@ -34,3 +35,12 @@ ncnn `Layer` 改为 `mgraph::Layer<Mat, Option>` 的派生类：
 
 ncnn `NetPrivate` 在 load_param 后调用 `graph.build_execution_plan()`，
 并用 `plan.output_blobs` 生成输出索引。
+
+## 执行循环迁移
+
+`NetPrivate::forward_layer` 不再包含递归/依赖拉取逻辑；它构造
+`mgraph::Executor<Layer, Mat, Option>`。`NetPrivate` 实现 `ExecutionBackend`：
+
+* `is_input_layer`：`typeindex == LayerType::Input`；
+* `mask_option`：`get_masked_option`；
+* `invoke`：`do_forward_layer` + benchmark 包装。

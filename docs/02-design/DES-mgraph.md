@@ -42,6 +42,20 @@ Graph      blobs, layers + load_param / load_param_bin / clear
 blob。ncnn 已用它生成 `output_blob_indexes`；更完整的生命周期复用仍由
 Extractor 的动态 refcount 逻辑负责。
 
+## 执行循环
+
+`mgraph::Executor<LayerT, MatT, OptionT>` 实现递归执行：
+
+1. 校验 layer index；
+2. Input layer 直接返回；
+3. 对每个 bottom，若 `blob_mats[bottom].dims == 0`，递归执行 producer；
+4. 按 featmask 通过 backend 生成 option；
+5. 调用 backend `invoke`。
+
+`ExecutionBackend` 由消费方实现：判断 Input、mask option、执行具体
+`do_forward_layer`。ncnn `NetPrivate` 实现该 backend，`forward_layer` 只构造
+Executor 并调用 `forward`。
+
 ## 后续
 
 下一里程碑把 layer 注册接口与执行循环也迁到 mgraph，定义 `LayerFactory` /

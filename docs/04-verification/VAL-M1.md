@@ -5,9 +5,9 @@
 | 项 | 结果 |
 | --- | --- |
 | mgraph check-all | 全部通过 |
-| 单元测试 | 12/12（graph/layer/log） |
-| 追溯矩阵 | 13 条需求、12 个用例 |
-| API 覆盖 | 22/22 |
+| 单元测试 | 15/15（graph/layer/executor/log） |
+| 追溯矩阵 | 14 条需求、15 个用例 |
+| API 覆盖 | 25/25 |
 | GCC / Clang | 零告警 |
 | ASan + UBSan / TSan | 通过 |
 | clang-tidy | 新代码 + 公共头通过 |
