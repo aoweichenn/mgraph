@@ -102,3 +102,10 @@ bottom blob、按 featmask 选择 option、调用 backend；concrete layer 调�
 未生产的 blob 通过 `Executor` 递归执行 producer；输出后处理留给消费方。
 
 **验收**：`Extractor.InputsAndLazilyProducesOutput`。
+
+## REQ-016 · Extractor 输出阶段
+
+**契约**：`Extractor::finalize` 在 `ensure` 之后复制输出 blob，非空时调用消费方
+finalize 回调（packing/cast/batch 等），空输出不调用。
+
+**验收**：`Extractor.FinalizeStageRunsForNonEmptyOutput`。

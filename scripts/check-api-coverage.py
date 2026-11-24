@@ -57,15 +57,15 @@ TEST_GLOBS = ("tests/**/*.cpp", "tests/**/*.hpp")
 IGNORED = {
     "Graph", "Blob", "LayerSpec", "Layer", "LayerFactory",
     "CustomEntry", "OverwriteEntry", "ExecutionPlan", "Executor", "ExecutionBackend", "Extractor",
-    "log_format",
+    "log_format", "finalize_fn",
     "DataReader", "DataReaderFromStdio", "DataReaderFromMemory",
     "ModelBin", "ModelBinFromDataReader", "ModelBinFromMatArray",
     "ParamDict",
-    "log_format",
+    "log_format", "finalize_fn",
     # constructor name
     "Image",
     # internal formatting entry; tested through MGRAPH_LOG* macros
-    "log_format",
+    "log_format", "finalize_fn",
     # local variable in Image::operator()(Rect), not a declaration
     "result",
 }

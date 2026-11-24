@@ -16,6 +16,8 @@ struct FakeMat {
     std::int32_t value = 0;
     bool released = false;
 
+    bool empty() const { return dims == 0; }
+
     void release() {
         dims = 0;
         value = 0;
@@ -157,4 +159,37 @@ TEST(Extractor, InputsAndLazilyProducesOutput) {
 
     EXPECT_NE(extractor.input(-1, FakeMat()), 0);
     EXPECT_NE(extractor.ensure(2), 0);
+}
+
+TEST(Extractor, FinalizeStageRunsForNonEmptyOutput) {
+    FakeLayer input;
+    input.typeindex = 99;
+    input.tops = {0};
+
+    const std::vector<FakeLayer*> layers = {&input};
+    const std::vector<mgraph::Blob> blobs = {{"data", 0, -1}};
+
+    RecordingBackend backend;
+    std::vector<FakeMat> blob_mats(1);
+    blob_mats[0].dims = 1;
+    blob_mats[0].value = 7;
+    FakeOption opt;
+    mgraph::Extractor<FakeLayer, FakeMat, FakeOption> extractor(layers, blobs, backend, blob_mats, opt);
+
+    std::int32_t calls = 0;
+    std::int32_t type = 0;
+    FakeMat feat;
+    EXPECT_EQ(extractor.finalize(0, feat, type,
+                                 [&](std::int32_t, FakeMat& out, std::int32_t& out_type) {
+                                     ++calls;
+                                     out_type = 1;
+                                     out.value += 1;
+                                     return 0;
+                                 }),
+              0);
+    EXPECT_EQ(calls, 1);
+    EXPECT_EQ(feat.value, 8);
+    EXPECT_EQ(type, 1);
+
+    EXPECT_NE(extractor.finalize(1, feat, type, [](std::int32_t, FakeMat&, std::int32_t&) { return 0; }), 0);
 }

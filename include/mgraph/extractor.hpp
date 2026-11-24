@@ -48,6 +48,18 @@ public:
         return 0;
     }
 
+    template<typename FinalizeFn>
+    std::int32_t finalize(std::int32_t blob_index, MatT& feat, std::int32_t& type, FinalizeFn&& finalize_fn) {
+        if (blob_index < 0 || static_cast<std::size_t>(blob_index) >= this->blob_mats_.size()) {
+            return -1;
+        }
+        feat = this->blob_mats_[static_cast<std::size_t>(blob_index)];
+        if (feat.empty()) {
+            return 0;
+        }
+        return finalize_fn(blob_index, feat, type);
+    }
+
     [[nodiscard]] std::vector<MatT>& blob_mats() { return this->blob_mats_; }
 
     [[nodiscard]] const std::vector<MatT>& blob_mats() const { return this->blob_mats_; }
