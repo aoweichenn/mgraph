@@ -14,6 +14,7 @@
 | Layer 基类模板 / LayerFactory | ✅ |
 | ExecutionPlan（层顺序、blob 最后使用、输入输出） | ✅ |
 | 通用执行循环 `Executor` / `ExecutionBackend` | ✅ |
+| `Extractor` 输入/按需提取编排 | ✅ |
 | 可注入日志 | ✅ |
 
 ## 快速开始

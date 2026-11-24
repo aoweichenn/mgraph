@@ -5,6 +5,7 @@ include/mgraph/graph.hpp          Blob / LayerSpec / Graph / ExecutionPlan
 include/mgraph/layer.hpp          Layer<MatT, OptionT>
 include/mgraph/layer_factory.hpp  LayerFactory<LayerT>
 include/mgraph/executor.hpp       Executor / ExecutionBackend
+include/mgraph/extractor.hpp      Extractor 编排
 include/mgraph/log.hpp            可注入日志
 src/graph.cpp                文本/二进制拓扑解析
 src/log.cpp
@@ -44,3 +45,9 @@ ncnn `NetPrivate` 在 load_param 后调用 `graph.build_execution_plan()`，
 * `is_input_layer`：`typeindex == LayerType::Input`；
 * `mask_option`：`get_masked_option`；
 * `invoke`：`do_forward_layer` + benchmark 包装。
+
+## Extractor 编排迁移
+
+ncnn `Extractor::input` 与 CPU `extract` 的懒执行部分改为构造
+`mgraph::Extractor<Layer, Mat, Option>` 并调用 `input` / `ensure`。
+输出后处理（packing/fp16/batch）、Vulkan 路径和本地 allocator 仍在 ncnn。

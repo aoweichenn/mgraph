@@ -95,3 +95,10 @@ bottom blob、按 featmask 选择 option、调用 backend；concrete layer 调�
 **验收**：`Executor.RunsLayersInDependencyOrder`、
 `Executor.RejectsInvalidLayerAndMissingProducer`、
 `Executor.BackendMasksOptionWithoutFeatmask`。
+
+## REQ-015 · Extractor 编排
+
+**契约**：`mgraph::Extractor` 维护 blob_mats，提供 `input` 与按需 `ensure`；
+未生产的 blob 通过 `Executor` 递归执行 producer；输出后处理留给消费方。
+
+**验收**：`Extractor.InputsAndLazilyProducesOutput`。

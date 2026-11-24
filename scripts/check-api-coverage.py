@@ -56,7 +56,7 @@ TEST_GLOBS = ("tests/**/*.cpp", "tests/**/*.hpp")
 # 不需要被测试直接引用的名字。
 IGNORED = {
     "Graph", "Blob", "LayerSpec", "Layer", "LayerFactory",
-    "CustomEntry", "OverwriteEntry", "ExecutionPlan", "Executor", "ExecutionBackend",
+    "CustomEntry", "OverwriteEntry", "ExecutionPlan", "Executor", "ExecutionBackend", "Extractor",
     "log_format",
     "DataReader", "DataReaderFromStdio", "DataReaderFromMemory",
     "ModelBin", "ModelBinFromDataReader", "ModelBinFromMatArray",
@@ -99,7 +99,7 @@ def collect_public_symbols() -> dict[str, tuple[str, int]]:
     """name -> (header, line)."""
     symbols: dict[str, tuple[str, int]] = {}
 
-    for header in ("graph.hpp", "layer.hpp", "layer_factory.hpp", "executor.hpp", "log.hpp"):
+    for header in ("graph.hpp", "layer.hpp", "layer_factory.hpp", "executor.hpp", "extractor.hpp", "log.hpp"):
         path = PUBLIC / header
         text = path.read_text(encoding="utf-8")
         rel = path.relative_to(LIB).as_posix()

@@ -7,6 +7,7 @@
 
 #include <gtest/gtest.h>
 #include <mgraph/executor.hpp>
+#include <mgraph/extractor.hpp>
 
 namespace {
 
@@ -116,4 +117,34 @@ TEST(Executor, BackendMasksOptionWithoutFeatmask) {
 
     ASSERT_EQ(executor.forward(0, blob_mats, opt), 0);
     EXPECT_EQ(blob_mats[0].value, 3);
+}
+
+TEST(Extractor, InputsAndLazilyProducesOutput)
+{
+    FakeLayer input;
+    input.typeindex = 99;
+    input.tops = {0};
+
+    FakeLayer conv;
+    conv.typeindex = 1;
+    conv.bottoms = {0};
+    conv.tops = {1};
+
+    const std::vector<FakeLayer*> layers = {&input, &conv};
+    const std::vector<mgraph::Blob> blobs = {{"data", 0, 1}, {"out", 1, -1}};
+
+    RecordingBackend backend;
+    std::vector<FakeMat> blob_mats(2);
+    FakeOption opt;
+    mgraph::Extractor<FakeLayer, FakeMat, FakeOption> extractor(layers, blobs, backend, blob_mats, opt);
+
+    EXPECT_EQ(extractor.input(0, FakeMat{1, 5}), 0);
+    EXPECT_EQ(extractor.ensure(1), 0);
+    EXPECT_EQ(blob_mats[1].dims, 1);
+    EXPECT_EQ(blob_mats[1].value, 1);
+    ASSERT_EQ(backend.order.size(), 1U);
+    EXPECT_EQ(extractor.blob_mats().size(), 2U);
+
+    EXPECT_NE(extractor.input(-1, FakeMat()), 0);
+    EXPECT_NE(extractor.ensure(2), 0);
 }

@@ -56,6 +56,16 @@ Extractor 的动态 refcount 逻辑负责。
 `do_forward_layer`。ncnn `NetPrivate` 实现该 backend，`forward_layer` 只构造
 Executor 并调用 `forward`。
 
+## Extractor 编排
+
+`mgraph::Extractor<LayerT, MatT, OptionT>` 持有 `blob_mats` 引用与 `Executor`：
+
+* `input(index, mat)` 写入输入 blob；
+* `ensure(index)` 在 `dims == 0` 时通过 Executor 执行 producer；
+* 输出拷贝与 packing/cast/batch 后处理留给消费方。
+
+ncnn `Extractor::input` 与 CPU `extract` 的懒执行部分已委托给该模板。
+
 ## 后续
 
 下一里程碑把 layer 注册接口与执行循环也迁到 mgraph，定义 `LayerFactory` /
