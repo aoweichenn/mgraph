@@ -37,6 +37,16 @@ struct LayerSpec {
     mformat::ParamDict params;
 };
 
+struct ExecutionPlan {
+    // Layer indices in execution order (currently the stored order).
+    std::vector<std::int32_t> layer_order;
+    // For each blob: the last layer that consumes it, or -1 for network output.
+    std::vector<std::int32_t> blob_last_use;
+    // Blobs without a producer are network inputs; blobs without a consumer are outputs.
+    std::vector<std::int32_t> input_blobs;
+    std::vector<std::int32_t> output_blobs;
+};
+
 class MGRAPH_EXPORT Graph {
 public:
     Graph();
@@ -47,6 +57,8 @@ public:
     // Returns 0 on success.
     std::int32_t load_param(const mformat::DataReader& reader);
     std::int32_t load_param_bin(const mformat::DataReader& reader);
+
+    [[nodiscard]] ExecutionPlan build_execution_plan() const;
 
     std::vector<Blob> blobs;
     std::vector<LayerSpec> layers;

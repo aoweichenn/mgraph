@@ -62,3 +62,26 @@
 再按 spec 创建 layer；189 个 ncnn 测试保持通过。
 
 **验收**：`Graph.ParsesTextTopologyAndParams`、`Graph.ParsesBinaryTopology`。
+
+## REQ-011 · Layer 基类解耦
+
+**契约**：`mgraph::Layer<MatT, OptionT>` 提供标志、参数、生命周期与默认
+forward 实现，不依赖 ncnn/Vulkan 类型；ncnn `Layer` 继承它。
+
+**验收**：`Layer.DefaultFlagsAndLifecycle`、`Layer.InplaceForwardClonesAndCallsInplace`。
+
+## REQ-012 · Layer 注册工厂
+
+**契约**：`mgraph::LayerFactory<LayerT>` 管理 custom/overwrite builtin 注册、
+创建、销毁、custom index 查找；custom bit 可配置。
+
+**验收**：`LayerFactory.RegistersAndCreatesCustomLayer`、
+`LayerFactory.RegistersByIndexAndReportsEntries`、
+`LayerFactory.OverwritesBuiltinLayer`。
+
+## REQ-013 · 执行计划
+
+**契约**：`Graph::build_execution_plan` 返回层顺序、每个 blob 的最后使用层、
+网络输入/输出 blob 集合。
+
+**验收**：`Graph.BuildsExecutionPlan`。

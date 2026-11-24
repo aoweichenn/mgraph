@@ -87,6 +87,30 @@ TEST(Graph, ParsesBinaryTopology) {
     EXPECT_EQ(graph.blobs[1].producer, 1);
 }
 
+TEST(Graph, BuildsExecutionPlan) {
+    const char text[] =
+        "7767517 3 3\n"
+        "Input input 0 1 data\n"
+        "Convolution conv 1 1 data conv1 0=1 1=1\n"
+        "ReLU relu 1 1 conv1 output\n";
+    const auto* memory = reinterpret_cast<const std::uint8_t*>(text);
+    mformat::DataReaderFromMemory reader(memory);
+
+    mgraph::Graph graph;
+    ASSERT_EQ(graph.load_param(reader), 0);
+    const mgraph::ExecutionPlan plan = graph.build_execution_plan();
+    ASSERT_EQ(plan.layer_order.size(), 3U);
+    EXPECT_EQ(plan.layer_order[0], 0);
+    EXPECT_EQ(plan.layer_order[2], 2);
+    ASSERT_EQ(plan.blob_last_use.size(), 3U);
+    EXPECT_EQ(plan.blob_last_use[0], 1);
+    EXPECT_EQ(plan.blob_last_use[1], 2);
+    EXPECT_EQ(plan.blob_last_use[2], -1);
+    EXPECT_EQ(plan.input_blobs, std::vector<std::int32_t>{});
+    ASSERT_EQ(plan.output_blobs.size(), 1U);
+    EXPECT_EQ(plan.output_blobs[0], 2);
+}
+
 TEST(Graph, RejectsOldMagic) {
     const char text[] = "7767516 1 1 Input input 0 1 data\n";
     const auto* memory = reinterpret_cast<const std::uint8_t*>(text);

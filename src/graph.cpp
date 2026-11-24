@@ -279,4 +279,29 @@ std::int32_t Graph::load_param_bin(const mformat::DataReader& reader) {
     return 0;
 }
 
+ExecutionPlan Graph::build_execution_plan() const {
+    ExecutionPlan plan;
+    plan.layer_order.resize(this->layers.size());
+    for (std::size_t i = 0; i < this->layers.size(); ++i) {
+        plan.layer_order[i] = static_cast<std::int32_t>(i);
+    }
+
+    plan.blob_last_use.resize(this->blobs.size(), -1);
+    plan.input_blobs.reserve(this->blobs.size());
+    plan.output_blobs.reserve(this->blobs.size());
+    for (std::size_t i = 0; i < this->blobs.size(); ++i) {
+        const Blob& blob = this->blobs[i];
+        if (blob.producer == -1) {
+            plan.input_blobs.push_back(static_cast<std::int32_t>(i));
+        }
+        if (blob.consumer == -1) {
+            plan.output_blobs.push_back(static_cast<std::int32_t>(i));
+        } else {
+            plan.blob_last_use[i] = blob.consumer;
+        }
+    }
+
+    return plan;
+}
+
 }  // namespace mgraph

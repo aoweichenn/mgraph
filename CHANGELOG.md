@@ -7,4 +7,6 @@
 * `Graph`：ncnn param 文本/二进制拓扑解析。
 * `Blob` producer/consumer 记录。
 * `LayerSpec`：类型名/类型索引、bottoms/tops、`ParamDict`。
+* `mgraph::Layer<MatT, OptionT>` 与 `LayerFactory<LayerT>`。
+* `ExecutionPlan`：层顺序、blob 最后使用层、输入/输出 blob。
 * 可注入日志接口。
