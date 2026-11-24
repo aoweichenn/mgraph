@@ -53,8 +53,12 @@ Extractor 的动态 refcount 逻辑负责。
 5. 调用 backend `invoke`。
 
 `ExecutionBackend` 由消费方实现：判断 Input、mask option、执行具体
-`do_forward_layer`。ncnn `NetPrivate` 实现该 backend，`forward_layer` 只构造
-Executor 并调用 `forward`。
+`do_forward_layer`，并决定 bottom blob 是否可在消费后释放。
+Executor 在 `invoke` 成功后统一调用 `release()`，ncnn backend 只提供
+`lightmode` / kvcache allocator 判定。
+
+ncnn `NetPrivate` 实现该 backend，`forward_layer` 只构造 Executor 并调用
+`forward`。
 
 ## Extractor 编排
 

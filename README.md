@@ -13,7 +13,7 @@
 | 每层 `ParamDict` | ✅ |
 | Layer 基类模板 / LayerFactory | ✅ |
 | ExecutionPlan（层顺序、blob 最后使用、输入输出） | ✅ |
-| 通用执行循环 `Executor` / `ExecutionBackend` | ✅ |
+| 通用执行循环 `Executor` / `ExecutionBackend`（含 bottom 释放） | ✅ |
 | `Extractor` 输入/按需提取编排 | ✅ |
 | 可注入日志 | ✅ |
 

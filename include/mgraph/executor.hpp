@@ -23,6 +23,9 @@ public:
     [[nodiscard]] virtual bool is_input_layer(const LayerT& layer) const = 0;
     [[nodiscard]] virtual OptionT mask_option(const OptionT& opt, std::int32_t featmask) const = 0;
     virtual std::int32_t invoke(const LayerT* layer, std::vector<MatT>& blob_mats, const OptionT& opt) const = 0;
+
+    // Whether a bottom blob may be released after its consumer succeeded.
+    [[nodiscard]] virtual bool should_release_bottom(const MatT& blob, const OptionT& opt) const = 0;
 };
 
 // Recursive layer execution with lazy blob production. Blob lifetime and
@@ -65,7 +68,19 @@ public:
         }
 
         const OptionT layer_opt = layer->featmask != 0 ? this->backend_.mask_option(opt, layer->featmask) : opt;
-        return this->backend_.invoke(layer, blob_mats, layer_opt);
+        const std::int32_t ret = this->backend_.invoke(layer, blob_mats, layer_opt);
+        if (ret != 0) {
+            return ret;
+        }
+
+        for (std::int32_t bottom_blob_index : layer->bottoms) {
+            if (bottom_blob_index >= 0 && static_cast<std::size_t>(bottom_blob_index) < blob_mats.size() &&
+                this->backend_.should_release_bottom(blob_mats[static_cast<std::size_t>(bottom_blob_index)], opt)) {
+                blob_mats[static_cast<std::size_t>(bottom_blob_index)].release();
+            }
+        }
+
+        return 0;
     }
 
 private:

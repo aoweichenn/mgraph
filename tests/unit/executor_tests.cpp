@@ -14,6 +14,13 @@ namespace {
 struct FakeMat {
     std::int32_t dims = 0;
     std::int32_t value = 0;
+    bool released = false;
+
+    void release() {
+        dims = 0;
+        value = 0;
+        released = true;
+    }
 };
 
 struct FakeOption {
@@ -38,6 +45,8 @@ public:
         masked.num_threads = 1;
         return masked;
     }
+
+    bool should_release_bottom(const FakeMat&, const FakeOption&) const override { return true; }
 
     std::int32_t invoke(const FakeLayer* layer, std::vector<FakeMat>& blob_mats, const FakeOption& opt) const override {
         this->order.push_back(layer->typeindex);
@@ -81,6 +90,8 @@ TEST(Executor, RunsLayersInDependencyOrder) {
     EXPECT_EQ(backend.order[0], 1);
     EXPECT_EQ(backend.order[1], 2);
     EXPECT_EQ(blob_mats[2].value, 102);
+    EXPECT_TRUE(blob_mats[0].released);
+    EXPECT_TRUE(blob_mats[1].released);
 }
 
 TEST(Executor, RejectsInvalidLayerAndMissingProducer) {
@@ -119,8 +130,7 @@ TEST(Executor, BackendMasksOptionWithoutFeatmask) {
     EXPECT_EQ(blob_mats[0].value, 3);
 }
 
-TEST(Extractor, InputsAndLazilyProducesOutput)
-{
+TEST(Extractor, InputsAndLazilyProducesOutput) {
     FakeLayer input;
     input.typeindex = 99;
     input.tops = {0};

@@ -44,7 +44,10 @@ ncnn `NetPrivate` 在 load_param 后调用 `graph.build_execution_plan()`，
 
 * `is_input_layer`：`typeindex == LayerType::Input`；
 * `mask_option`：`get_masked_option`；
-* `invoke`：`do_forward_layer` + benchmark 包装。
+* `invoke`：`do_forward_layer` + benchmark 包装；
+* `should_release_bottom`：`lightmode` 或 kvcache allocator 判定。
+  原 `do_forward_layer` 内的 4 处 bottom blob `release()` 已删除，统一由
+  Executor 在消费后释放。
 
 ## Extractor 编排迁移
 
