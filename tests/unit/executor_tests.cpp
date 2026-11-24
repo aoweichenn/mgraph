@@ -61,7 +61,43 @@ public:
     mutable std::vector<std::int32_t> order;
 };
 
+class RecordingOutputBackend : public mgraph::OutputBackend<FakeMat> {
+public:
+    std::int32_t finalize(std::int32_t blob_index, FakeMat& feat, std::int32_t& type) override {
+        this->finalized_blob_index_ = blob_index;
+        feat.value += 10;
+        type = 2;
+        return 0;
+    }
+
+    std::int32_t finalized_blob_index_ = -1;
+};
+
 }  // namespace
+
+TEST(Extractor, FinalizeStageAcceptsOutputBackendInterface) {
+    FakeLayer input;
+    input.typeindex = 99;
+    input.tops = {0};
+
+    const std::vector<FakeLayer*> layers = {&input};
+    const std::vector<mgraph::Blob> blobs = {{"data", 0, -1}};
+
+    RecordingBackend backend;
+    std::vector<FakeMat> blob_mats(1);
+    blob_mats[0].dims = 1;
+    blob_mats[0].value = 5;
+    FakeOption opt;
+    mgraph::Extractor<FakeLayer, FakeMat, FakeOption> extractor(layers, blobs, backend, blob_mats, opt);
+
+    RecordingOutputBackend output_backend;
+    std::int32_t type = 0;
+    FakeMat feat;
+    EXPECT_EQ(extractor.finalize(0, feat, type, output_backend), 0);
+    EXPECT_EQ(output_backend.finalized_blob_index_, 0);
+    EXPECT_EQ(feat.value, 15);
+    EXPECT_EQ(type, 2);
+}
 
 TEST(Executor, RunsLayersInDependencyOrder) {
     FakeLayer input;

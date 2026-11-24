@@ -22,7 +22,8 @@
 ● `Executor.RejectsInvalidLayerAndMissingProducer`
 ● `Executor.BackendMasksOptionWithoutFeatmask`
 ● `Extractor.InputsAndLazilyProducesOutput`
-● `Extractor.FinalizeStageRunsForNonEmptyOutput` |
+● `Extractor.FinalizeStageRunsForNonEmptyOutput`
+● `Extractor.FinalizeStageAcceptsOutputBackendInterface` |
 | **REQ-006** 清空 | DES §2 | ● `src/graph.cpp` | ● `Graph.ParsesTextTopologyAndParams` |
 | **REQ-007** 日志静默 | DES §3 | ● `src/log.cpp` | ● `Log.IsSilentWhenNoHandlerInstalled` |
 | **REQ-008** 日志转发 | DES §3 | ● `src/log.cpp` | ● `Log.ForwardsLevelMessageAndUserData`<br>● `Log.CanBeCleared` |
@@ -33,9 +34,10 @@
 ● `Executor.BackendMasksOptionWithoutFeatmask`
 ● `Extractor.InputsAndLazilyProducesOutput`
 ● `Extractor.FinalizeStageRunsForNonEmptyOutput` |
-| **REQ-016** Extractor 输出阶段 | DES §5 | ● `include/mgraph/extractor.hpp` | ● `Extractor.FinalizeStageRunsForNonEmptyOutput` |
+| **REQ-016** Extractor 输出阶段 | DES §5 | ● `include/mgraph/extractor.hpp`<br>● `include/mgraph/output_backend.hpp` | ● `Extractor.FinalizeStageRunsForNonEmptyOutput`<br>● `Extractor.FinalizeStageAcceptsOutputBackendInterface` |
 | **REQ-015** Extractor 编排 | DES §5 | ● `include/mgraph/extractor.hpp` | ● `Extractor.InputsAndLazilyProducesOutput`
-● `Extractor.FinalizeStageRunsForNonEmptyOutput` |
+● `Extractor.FinalizeStageRunsForNonEmptyOutput`
+● `Extractor.FinalizeStageAcceptsOutputBackendInterface` |
 | **REQ-014** 通用执行循环 | DES §5 | ● `include/mgraph/executor.hpp` | ● `Executor.RunsLayersInDependencyOrder`<br>● `Executor.RejectsInvalidLayerAndMissingProducer`<br>● `Executor.BackendMasksOptionWithoutFeatmask`
 ● `Extractor.InputsAndLazilyProducesOutput`
 ● `Extractor.FinalizeStageRunsForNonEmptyOutput` |
@@ -59,6 +61,7 @@
 ● `Executor.BackendMasksOptionWithoutFeatmask`
 ● `Extractor.InputsAndLazilyProducesOutput`
 ● `Extractor.FinalizeStageRunsForNonEmptyOutput`
+● `Extractor.FinalizeStageAcceptsOutputBackendInterface`
 ● `Log.IsSilentWhenNoHandlerInstalled`
 ● `Log.ForwardsLevelMessageAndUserData`
 ● `Log.CanBeCleared`
