@@ -91,6 +91,15 @@ public:
 
     virtual std::int32_t forward_inplace(MatT&, const OptionT&) const { return -1; }
 
+    // Graph-level activation fusion: an activation layer reports the fused
+    // activation type it is equivalent to, a convolution accepts it. Both
+    // default to "not supported" so unused layers stay untouched.
+    virtual std::int32_t get_fused_activation(std::int32_t& /*type*/, MatT& /*params*/) const { return -1; }
+
+    virtual bool can_fuse_activation(std::int32_t /*type*/) const { return false; }
+
+    virtual void set_fused_activation(std::int32_t /*type*/, const MatT& /*params*/) {}
+
 public:
     bool one_blob_only;
     bool support_inplace;
