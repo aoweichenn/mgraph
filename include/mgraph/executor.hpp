@@ -6,6 +6,9 @@
 #define MGRAPH_EXECUTOR_HPP
 
 #include <cstdint>
+#include <cstdio>
+#include <cmath>
+#include <cstdlib>
 
 #include <vector>
 
@@ -70,7 +73,50 @@ public:
         const OptionT layer_opt = layer->featmask != 0 ? this->backend_.mask_option(opt, layer->featmask) : opt;
         const std::int32_t ret = this->backend_.invoke(layer, blob_mats, layer_opt);
         if (ret != 0) {
+            // Name the failing layer: without it a broken graph can only be
+            // bisected by hand.
+            std::fprintf(stderr, "[mgraph] layer %d failed (ret=%d) bottoms:", layer_index, ret);
+            for (std::int32_t bottom_blob_index : layer->bottoms) {
+                if (bottom_blob_index < 0 || static_cast<std::size_t>(bottom_blob_index) >= blob_mats.size()) {
+                    std::fprintf(stderr, " %d:?", bottom_blob_index);
+                    continue;
+                }
+                const MatT& m = blob_mats[static_cast<std::size_t>(bottom_blob_index)];
+                std::fprintf(stderr, " %d:%dx%dx%d", bottom_blob_index, m.w, m.h, m.c);
+            }
+            std::fprintf(stderr, "\n");
             return ret;
+        }
+
+        // Opt-in per-layer shape trace: MGRAPH_TRACE=1 prints every produced
+        // blob, which is the quickest way to find where a shape chain breaks.
+        static const bool trace_enabled = std::getenv("MGRAPH_TRACE") != nullptr;
+        if (trace_enabled) {
+            std::fprintf(stderr, "[trace] layer %d tops:", layer_index);
+            for (std::int32_t top_blob_index : layer->tops) {
+                if (top_blob_index < 0 || static_cast<std::size_t>(top_blob_index) >= blob_mats.size()) {
+                    std::fprintf(stderr, " %d:?", top_blob_index);
+                    continue;
+                }
+                const MatT& m = blob_mats[static_cast<std::size_t>(top_blob_index)];
+                std::fprintf(stderr, " %d:%dx%dx%d", top_blob_index, m.w, m.h, m.c);
+                if (m.elemsize == 4u && m.data != nullptr) {
+                    const auto* ptr = static_cast<const float*>(m.data);
+                    const std::size_t count = m.cstep * static_cast<std::size_t>(m.c);
+                    double absmax = 0.0;
+                    std::size_t bad = 0;
+                    for (std::size_t i = 0; i < count; ++i) {
+                        const float v = ptr[i];
+                        if (!std::isfinite(v)) {
+                            ++bad;
+                        } else if (static_cast<double>(std::fabs(v)) > absmax) {
+                            absmax = static_cast<double>(std::fabs(v));
+                        }
+                    }
+                    std::fprintf(stderr, " max=%.3e bad=%zu", absmax, bad);
+                }
+            }
+            std::fprintf(stderr, "\n");
         }
 
         for (std::int32_t bottom_blob_index : layer->bottoms) {
