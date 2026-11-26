@@ -71,6 +71,10 @@ public:
         }
 
         const OptionT layer_opt = layer->featmask != 0 ? this->backend_.mask_option(opt, layer->featmask) : opt;
+        static const bool trace_enter_enabled = std::getenv("MGRAPH_TRACE") != nullptr;
+        if (trace_enter_enabled) {
+            std::fprintf(stderr, "[enter] layer %d\n", layer_index);
+        }
         const std::int32_t ret = this->backend_.invoke(layer, blob_mats, layer_opt);
         if (ret != 0) {
             // Name the failing layer: without it a broken graph can only be
